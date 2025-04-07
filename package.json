@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-pointmintmarket-ncm",
   "description": "提供网易云音乐积分兑换服务",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -22,8 +22,8 @@
   },
   "koishi": {
     "description": {
-      "en": "Provide PointMintMarket NCM service",
-      "zh": "提供网易云音乐积分兑换服务"
+      "en": "Provide music exchange with points, currently supporting NetEase Cloud Music",
+      "zh": "提供通过积分兑换音乐的功能，目前支持网易云音乐"
     },
     "services": {
       "required": [
@@ -32,7 +32,7 @@
       ]
     },
     "devDependencies": {
-      "koishi-plugin-pointmintmarket": "^0.0.6"
+      "koishi-plugin-pointmintmarket": "^0.1.0"
     }
   }
 }

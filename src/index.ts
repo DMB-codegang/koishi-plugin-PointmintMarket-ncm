@@ -24,7 +24,6 @@ export function apply(ctx: Context, config: Config) {
   const ncm = new Ncm(ctx, config, logger)
   // 在插件启动时注册示例商品
   ctx.on('ready', async () => {
-    ctx.market.unregisterItems(ctx.name)
     const cc = (await ncm.checkCookie(config.login_cookie))
     if (cc.code >= 300 || cc.code < 200) {
       logger.warn('cookie无效' + cc.msg)
@@ -39,10 +38,8 @@ export function apply(ctx: Context, config: Config) {
   // 注册示例商品
   async function registerExampleItems() {
     const Item: MarketItemRegisterOptions = {
-      id: config.id,
       name: config.name,
       description: config.description,
-      price: config.price,
       tags: config.tags,
       onPurchase: async (session) => {
         await session.send('请输入歌曲名或歌手')
@@ -105,16 +102,39 @@ export function apply(ctx: Context, config: Config) {
             }
           }
         }
-        await session.send('你选择了：' + songid)
         const songUrl = await ncm.getSongUrl(songid)
         if (songUrl.code >= 300 || songUrl.code < 200) {
           return { code: 500, msg: '获取歌曲链接失败' }
         }
-        console.log(await ncm.levelToString(songUrl.data.level))
         const songlevel = await ncm.levelToString(songUrl.data.level)
-        await session.send(`音频等级：${songlevel}\n码率：${songUrl.data.br/1000}kbps\n大小：${songUrl.data.size/1000}kb`)
-        await session.send(`<audio src="${songUrl.data.url}"/>`)
-        return { code: 205, msg: '这里是断点' }
+        if (config.outputMode.includes('songinfo')) await session.send(`音频等级：${songlevel}\n码率：${songUrl.data.br/1000}kbps\n大小：${songUrl.data.size/1000}kb`)
+        if (config.outputMode.includes('audio')) session.send(`<audio src="${songUrl.data.url}"/>`)
+        const songInfo = await ncm.getSongInfo(songid.toString())
+        if (config.outputMode.includes('voice')) {
+          let fileType = ''
+          if (config.quality == 'standard' || config.quality == 'higher' || config.quality == 'exhigh') {
+            fileType = 'mp3'
+          } else {
+            fileType = 'flac'
+          }
+          session.send(`<file title="${songInfo.data.name}-${songInfo.data.ar[0].name}.${fileType}" src="${songUrl.data.url}" poster="${songInfo.data.al.picUrl}"/>`);
+        }
+        if (config.outputMode.includes('mv')) {
+          if (songInfo.code == 200){
+            if (songInfo.data.mvId != 0) {
+              console.log(songInfo)
+              const mvUrl = await ncm.getMVUrl(songInfo.data.mv)
+              if (mvUrl.code == 200) {
+                await session.send(`<video src="${mvUrl.data}"/>`)
+              } else {
+                await session.send('获取MV链接失败')
+              }
+            } else {
+              await session.send('该歌曲无MV')
+            }
+          }
+        }
+        return true
       }
     }
     ctx.market.registerItem(ctx.name, Item)

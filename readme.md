@@ -28,23 +28,16 @@
 
 | 配置项 | 类型 | 默认值 | 说明 |
 |-------|------|-------|------|
-| id | string | '4' | 商品ID |
 | name | string | 'ncm' | 商品名称 |
-| description | string | '兑换来自网易云的音乐' | 商品描述 |
-| price | number | 10 | 商品价格 |
-| tags | string[] | ['ncm', '网易云'] | 商品标签 |
+| description | string | '兑换来自网易云的音乐' | 默认商品描述 |
+| tags | string[] | ['ncm', '网易云'] | 默认商品标签 |
 | waitTime | number | 60000 | 兑换等待时间（毫秒） |
 
 ### 登录设置
 
 | 配置项 | 类型 | 默认值 | 说明 |
 |-------|------|-------|------|
-| loginType | string | 'anonimous' | 登录方式，支持 'phone'、'email'、'cookie'、'anonimous' |
-| login_phone | string | - | 用于登录的手机号（当 loginType 为 'phone' 时必填） |
-| login_phone_countrycode | string | - | 国家码（非必填） |
-| login_email | string | - | 用于登录的邮箱（当 loginType 为 'email' 时必填） |
-| login_email_password | string | - | 用于登录的密码（当 loginType 为 'email' 时必填） |
-| login_email_passwordIsMD5 | boolean | false | 密码是否为MD5加密 |
+| loginType | string | 'anonimous' | 登录方式，支持 'cookie'、'anonimous'(游客) |
 | login_cookie | string | - | 用于登录的cookie（当 loginType 为 'cookie' 时必填） |
 
 ### Ncm核心配置
@@ -57,6 +50,7 @@
 | songStyle | string | '{index}. {name} - {ar.name} {al.pic}' | 单个歌曲样式 |
 | picSize | number[] | [200, 200] | 图片尺寸（长x宽） |
 | quality | string | 'standard' | 音质等级 |
+| outputMode | string[] | ['voice'] | 输出模式，可多选 |
 
 #### 音质等级选项
 
@@ -78,12 +72,7 @@
 
 ## 兑换流程
 
-1. 用户购买商品后，系统会提示输入歌曲名或歌手
+1. 用户购买商品后，根据提示输入歌曲名或歌手
 2. 系统返回搜索结果，并分页显示
 3. 用户可以通过输入数字选择歌曲，或输入 next/prev 翻页，或输入 exit 退出
 4. 选择歌曲后，系统会返回歌曲链接和音频信息
-
-## 注意事项
-
-- 手机号登录方式在测试中无法登录，建议使用 cookie 登录方式
-- 部分音质需要会员权限

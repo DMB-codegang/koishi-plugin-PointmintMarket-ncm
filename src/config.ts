@@ -3,15 +3,11 @@ import { Schema } from 'koishi'
 // 插件配置
 export interface Config {
     // 兑换设置
-    /** 商品ID */
-    id: string
-    /** API对应的商品名称 */
+    /** 商品名称 */
     name: string
-    /** 商品详细描述 */
+    /** 默认商品详细描述 */
     description: string
-    /** 商品定价 */
-    price: number
-    /** 商品标签 */
+    /** 默认商品标签 */
     tags: string[]
     /** 兑换等待时间 */
     waitTime: number
@@ -44,17 +40,17 @@ export interface Config {
     picSize: number[]
     /** 音质类型 */
     quality: 'standard' | 'higher' | 'exhigh' | 'lossless' | 'hires' | 'jyeffect' | 'sky' | 'dolby' | 'jymaster'
+    /** 选择输出模式，可选语音返回，音频文件返回，mv视频返回的任意排列组合 */
+    outputMode: string[]
 }
 
 export const Config: Schema<Config> = Schema.intersect([
     // 兑换设置
     Schema.object({
         waitTime: Schema.number().default(60000).min(1000).description('兑换等待时间（毫秒）'),
-        id: Schema.string().default('4').description('商品ID'),
         name: Schema.string().default('ncm').description('商品名称'),
-        description: Schema.string().default('兑换来自网易云的音乐').description('商品描述'),
-        price: Schema.number().default(10).description('商品价格'),
-        tags: Schema.array(Schema.string()).default(['ncm', '网易云']).description('商品标签'),
+        description: Schema.string().default('兑换来自网易云的音乐').description('默认商品描述'),
+        tags: Schema.array(Schema.string()).default(['ncm', '网易云']).description('默认商品标签'),
     }).description('兑换设置'),
 
     // 登录设置
@@ -91,11 +87,11 @@ export const Config: Schema<Config> = Schema.intersect([
         max_search_num: Schema.number().default(25).min(1).description('最大搜索数量'),
         max_songs_per_page: Schema.number().default(3).min(1).description('每页歌曲数量'),
         songListStyle: Schema.string().role('textarea', { rows: [4, 3] })
-        .default('歌曲列表：\n{songs}\n第{page}页/共{total}页\nnext下一页，prev上一页，exit退出')
-        .description('歌曲列表样式，支持变量`{songs}`、`{page}`、`{total}`'),
+            .default('歌曲列表：\n{songs}\n第{page}页/共{total}页\nnext下一页，prev上一页，exit退出')
+            .description('歌曲列表样式，支持变量`{songs}`、`{page}`、`{total}`'),
         songStyle: Schema.string().role('textarea', { rows: [4, 3] })
-        .default('{index}. {name} - {ar.name} {al.pic}')
-        .description('单个歌曲样式，支持变量`{index}`、`{id}`、`{ar.name}`、`{al.id}`、`{al.name}`、`{al.pic}`'),
+            .default('{index}. {name} - {ar.name} {al.pic}')
+            .description('单个歌曲样式，支持变量`{index}`、`{id}`、`{ar.name}`、`{al.id}`、`{al.name}`、`{al.pic}`'),
         picSize: Schema.tuple([Schema.number().min(20), Schema.number().min(20)]).default([200, 200]).description('图片尺寸（`长x宽`）'),
         quality: Schema.union([
             Schema.const('standard').description('标准'),
@@ -107,6 +103,14 @@ export const Config: Schema<Config> = Schema.intersect([
             Schema.const('sky').description('沉浸环绕声'),
             Schema.const('dolby').description('杜比全景声'),
             Schema.const('jymaster').description('超清母带')
-        ]).default('standard').description('音质等级 杜比全景声需要cookie的`os=pc`以保证码率正常')
+        ]).default('standard').description('音质等级 杜比全景声需要cookie的`os=pc`以保证码率正常'),
+        outputMode: Schema.array(
+            Schema.union([
+                Schema.const('songinfo').description('歌曲信息'),
+                Schema.const('audio').description('语音'),
+                Schema.const('voice').description('音频文件'),
+                Schema.const('mv').description('mv视频')
+            ])
+        ).description('选择输出模式，可选语音返回，音频文件返回，mv视频返回的任意排列组合').default(['voice']).role('checkbox')
     }).description('Ncm核心配置')
 ])
